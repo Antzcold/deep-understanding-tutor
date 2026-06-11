@@ -4,50 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-This is the **packaged distribution** of the `deep-understanding-tutor` Claude
-Skill — an adaptive tutoring system. It is *not* a normal source checkout and is
-not a git repository. On disk there are only three artifacts:
-
-- `SKILL.md` — the skill's instructions (a copy, identical to the one inside the bundle).
-- `deep-understanding-tutor.skill` — the actual skill bundle (a ZIP archive). **The real source lives here.**
-- `deep-understanding-tutor.zip` — the redistributable, containing `SKILL.md` + the `.skill` bundle.
-
-The engine and reference docs are **only inside the `.skill` archive** — they are
-not extracted on disk. The bundle's internal layout is:
+The `deep-understanding-tutor` Claude Skill — an adaptive tutoring system. **The
+repository root _is_ the skill**: the loose files at the top level are the
+source of truth and are directly usable as a skill (no unzip step).
 
 ```
-deep-understanding-tutor/
-  SKILL.md
-  scripts/tutor_engine.py        # the deterministic engine (~1000 lines, stdlib only)
-  references/pedagogy.md         # learning science + how to act on it
-  references/question-design.md  # probe formats, grading rubrics, hint ladder
-  references/algorithms.md       # the math (BKT, FSRS-lite, calibration)
-  references/data-model.md       # profile.json / sessions.jsonl formats
-  references/design-rationale.md # how this maps to the research / other skills
+SKILL.md                       # the instructions Claude follows when tutoring
+scripts/tutor_engine.py        # the deterministic engine (~1000 lines, stdlib only)
+references/pedagogy.md         # learning science + how to act on it
+references/question-design.md  # probe formats, grading rubrics, hint ladder
+references/algorithms.md       # the math (BKT, FSRS-lite, calibration)
+references/data-model.md       # profile.json / sessions.jsonl formats
+references/design-rationale.md # how this maps to the research / other skills
+package.sh                     # builds the distributable archives from source
 ```
 
-## Editing the skill (extract → edit → repackage)
+## Editing the skill
 
-Because source lives inside the archive, edits require unpacking and repacking.
-Both `.skill` and `.zip` are plain ZIPs.
+Edit the loose source files directly, then run the engine selftest:
 
 ```bash
-# Extract to inspect or edit
-unzip -o deep-understanding-tutor.skill -d /tmp/dut && cd /tmp/dut/deep-understanding-tutor
-
-# Run / test the engine after editing
-python3 scripts/tutor_engine.py selftest        # built-in invariant tests — run after ANY engine change
+python3 scripts/tutor_engine.py selftest        # invariant tests — run after ANY engine change
 python3 scripts/tutor_engine.py --help
-
-# Repackage (the .skill is a zip whose top dir is deep-understanding-tutor/)
-cd /tmp/dut && zip -r deep-understanding-tutor.skill deep-understanding-tutor
 ```
 
-When changing the skill, keep the **three on-disk artifacts consistent**: the
-top-level `SKILL.md`, the `SKILL.md` inside the `.skill` bundle, and the `.skill`
-nested inside the `.zip` must all match (they currently are byte-identical).
-After editing, rebuild the `.skill`, copy its `SKILL.md` to the top level, and
-rebuild the `.zip` from `SKILL.md` + the new `.skill`.
+### Building the distributable archives
+
+`deep-understanding-tutor.skill` (the bundle) and `deep-understanding-tutor.zip`
+(SKILL.md + the bundle, for upload) are **build artifacts** — gitignored, not
+committed. They are needed only for uploading to claude.ai/Desktop or sharing a
+single file. Regenerate them from source with:
+
+```bash
+./package.sh          # runs selftest, then rebuilds both archives
+```
+
+Distribution is via **GitHub Releases**: `package.sh` builds the archive and it
+is attached to a tagged release (`gh release create vX.Y.Z deep-understanding-tutor.skill`).
+Never commit the archives — they would silently go stale against the source.
 
 ## Architecture: who does what
 

@@ -2,3 +2,8 @@
 tutor-data/
 _bundle/
 .claude/
+
+# Build artifacts (regenerate with ./package.sh)
+*.skill
+*.zip
+_build/
