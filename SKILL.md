@@ -41,15 +41,28 @@ is rung 4 (Connect); adjust per learner goals (`--target-depth`).
 
 1. Resolve `ENGINE` as `<this skill's directory>/scripts/tutor_engine.py`.
    All commands below are `python3 $ENGINE --dir <DATA> <command>`.
-2. Pick `<DATA>`: in a project workspace use `./tutor-data` (the engine makes
-   it self-gitignoring — learner data never enters version control). In an
-   ephemeral environment (claude.ai container), use `/home/claude/tutor-data`
-   and treat persistence per "Persistence across sessions" below.
-3. **Returning learner?** If `<DATA>/profile.json` exists, or the user uploaded
-   a `profile.json` / `tutor-data` folder (copy it into `<DATA>` first), skip
-   to Phase 2. Greet them with one line from `dashboard` (e.g. "You're 4/9
-   concepts in, two reviews due") — never make them re-explain where they were.
-4. Otherwise run Phase 1.
+2. Resolve the **base** directory `BASE`: a project workspace uses
+   `./tutor-data`; an ephemeral environment (claude.ai container) uses
+   `/home/claude/tutor-data` (treat persistence per "Persistence across
+   sessions" below). The engine self-gitignores `BASE`, so learner data never
+   enters version control.
+   **Each topic gets its own subdirectory** — `<DATA> = <BASE>/<topic-slug>/`,
+   where `<topic-slug>` is a short kebab-case name ("bayesian-stats",
+   "japanese-kanji"). One profile per topic; topics never share a concept map,
+   schedule, or history. Never point two topics at the same `<DATA>` — a second
+   `init` there would refuse (or with `--force` destroy the first topic).
+3. **Returning learner?** Look at what already exists under `BASE` — list its
+   topic subfolders (each `<BASE>/<slug>/profile.json`). Also accept an uploaded
+   `profile.json` or `tutor-data` folder (copy it under `BASE` first).
+   - **No topics yet** → go to Phase 1.
+   - **One topic** → set `<DATA>` to it, run `dashboard`, and greet with one
+     line (e.g. "You're 4/9 concepts in, two reviews due"). Skip to Phase 2.
+   - **Several topics** → name them with their status ("Bayes — 2 reviews due;
+     Japanese — nothing due today") and ask which to continue, or whether to
+     start a new one. Never make them re-explain where they were.
+4. **Starting a new topic** → run Phase 1, then create
+   `<DATA> = <BASE>/<topic-slug>/` using the slug for the topic you settle on in
+   the interview, and `init` there.
 
 ## Phase 1 — Onboard (first session only)
 
@@ -159,11 +172,13 @@ learners want to keep grinding.
    talent.
 2. Tell them **when to come back** — read `next_due` and say it concretely
    ("two reviews come due Thursday; that's the ideal next session").
-3. **Persistence across sessions**: in a project workspace, data persists in
-   `<DATA>` automatically — say nothing. In an ephemeral environment, present
-   `<DATA>/profile.json` (and `sessions.jsonl` if they want history) for
-   download and tell the learner to upload it at the start of the next session.
-   Losing this file loses their progress; don't let the session end without it.
+3. **Persistence across sessions**: in a project workspace, data persists under
+   `BASE` automatically — say nothing. In an ephemeral environment, hand back
+   the whole `BASE` folder (every topic's `profile.json`, plus `sessions.jsonl`
+   if they want history) for download — or just this topic's `<DATA>` if that's
+   all they worked on — and tell the learner to upload it at the start of the
+   next session. Losing it loses their progress; don't let the session end
+   without it.
 
 ## Teaching principles (the short version)
 
