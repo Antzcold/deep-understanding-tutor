@@ -1,15 +1,16 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for AI coding agents working in this repository. (Claude Code, and
+other agents that read `AGENTS.md`, load this automatically.)
 
 ## What this repository is
 
-The `deep-understanding-tutor` Claude Skill — an adaptive tutoring system. **The
+The `deep-understanding-tutor` Agent Skill — an adaptive tutoring system. **The
 repository root _is_ the skill**: the loose files at the top level are the
 source of truth and are directly usable as a skill (no unzip step).
 
 ```
-SKILL.md                       # the instructions Claude follows when tutoring
+SKILL.md                       # the instructions the LLM follows when tutoring
 scripts/tutor_engine.py        # the deterministic engine (~1000 lines, stdlib only)
 references/pedagogy.md         # learning science + how to act on it
 references/question-design.md  # probe formats, grading rubrics, hint ladder
