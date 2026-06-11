@@ -1,7 +1,8 @@
 # AGENTS.md
 
-Guidance for AI coding agents working in this repository. (Claude Code, and
-other agents that read `AGENTS.md`, load this automatically.)
+Guidance for AI coding agents working in this repository. Most agents (Codex,
+Cursor, Gemini CLI, …) read `AGENTS.md` directly; Claude Code reads it via the
+`@AGENTS.md` import in the sibling `CLAUDE.md`. Edit this file, not `CLAUDE.md`.
 
 ## What this repository is
 
